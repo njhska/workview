@@ -1,0 +1,23 @@
+[Unit]
+Description=Code Shelf File Browser
+After=network.target
+
+[Service]
+Type=simple
+User=www-data
+Group=www-data
+WorkingDirectory=/opt/file-browser
+ExecStart=/opt/file-browser/FileBrowser
+Environment=FILE_BROWSER_ROOT=/srv/code
+Environment=ASPNETCORE_URLS=http://127.0.0.1:5080
+Restart=always
+RestartSec=5
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/opt/file-browser
+ReadOnlyPaths=/srv/code
+
+[Install]
+WantedBy=multi-user.target

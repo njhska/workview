@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <title>Code Shelf · 文件浏览器</title>
+  <meta name="description" content="浏览并预览服务器上的代码文件">
+  <link rel="stylesheet" href="/app.css">
+</head>
+<body>
+  <header>
+    <div class="brand"><span class="mark">/&gt;</span><div><strong>Code Shelf</strong><small>SERVER FILE EXPLORER</small></div></div>
+    <div class="status"><i></i> SERVER ONLINE</div>
+  </header>
+  <main>
+    <section class="hero">
+      <p class="eyebrow">WORKSPACE / FILES</p>
+      <h1>服务器文件</h1>
+      <p>浏览目录并直接预览源代码。文件按最后修改时间从新到旧排列。</p>
+    </section>
+    <nav id="breadcrumbs" aria-label="当前位置"></nav>
+    <section class="panel">
+      <div class="table-head"><span>名称</span><span>大小</span><span>最后修改</span></div>
+      <div id="file-list" aria-live="polite"><div class="message">正在读取目录…</div></div>
+    </section>
+  </main>
+  <dialog id="preview-dialog">
+    <div class="dialog-head"><div><span class="file-type" id="preview-type">TXT</span><strong id="preview-name"></strong><small id="preview-path"></small></div><button id="close-preview" aria-label="关闭预览">×</button></div>
+    <div class="code-wrap"><pre id="line-numbers"></pre><pre><code id="preview-content"></code></pre></div>
+  </dialog>
+  <script src="/app.js" defer></script>
+</body>
+</html>
