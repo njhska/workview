@@ -1,12 +1,54 @@
+using System.Net;
 using System.Text;
 using System.Text.Json.Serialization;
 
-var builder = WebApplication.CreateSlimBuilder(args);
+IPAddress? commandLineIp = null;
+int? commandLinePort = null;
+string? commandLineRoot = null;
+
+if (args.Length is not 0 and not 3)
+{
+    Console.Error.WriteLine("用法: FileBrowser <IP> <端口> <目录>");
+    Environment.ExitCode = 1;
+    return;
+}
+
+if (args.Length == 3)
+{
+    if (!IPAddress.TryParse(args[0], out commandLineIp))
+    {
+        Console.Error.WriteLine($"IP 地址无效: {args[0]}");
+        Environment.ExitCode = 1;
+        return;
+    }
+
+    if (!int.TryParse(args[1], out var port) || port is < 1 or > 65535)
+    {
+        Console.Error.WriteLine($"端口号无效: {args[1]}（有效范围为 1-65535）");
+        Environment.ExitCode = 1;
+        return;
+    }
+
+    commandLinePort = port;
+    commandLineRoot = args[2];
+}
+
+// Positional parameters are handled above so ASP.NET Core does not interpret them
+// as configuration switches.
+var builder = WebApplication.CreateSlimBuilder(Array.Empty<string>());
+if (commandLineIp is not null && commandLinePort is not null)
+{
+    var host = commandLineIp.AddressFamily == System.Net.Sockets.AddressFamily.InterNetworkV6
+        ? $"[{commandLineIp}]"
+        : commandLineIp.ToString();
+    builder.Configuration["Kestrel:Endpoints:Http:Url"] = $"http://{host}:{commandLinePort}";
+}
 builder.Services.ConfigureHttpJsonOptions(options =>
     options.SerializerOptions.TypeInfoResolverChain.Insert(0, AppJsonContext.Default));
 var app = builder.Build();
 
-var root = Path.GetFullPath(Environment.GetEnvironmentVariable("FILE_BROWSER_ROOT")
+var root = Path.GetFullPath(commandLineRoot
+    ?? Environment.GetEnvironmentVariable("FILE_BROWSER_ROOT")
     ?? builder.Configuration["FileBrowser:Root"]
     ?? Directory.GetCurrentDirectory());
 

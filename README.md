@@ -8,6 +8,14 @@
 FILE_BROWSER_ROOT=/需要浏览的目录 dotnet run
 ```
 
+发布后的可执行文件可按顺序传入 IP、端口号和浏览目录：
+
+```bash
+./FileBrowser 0.0.0.0 5080 /需要浏览的目录
+```
+
+目录中含空格时请用引号包裹，例如 `./FileBrowser 127.0.0.1 8080 "/srv/my code"`。IP 必须是有效的 IPv4 或 IPv6 地址，端口范围为 1-65535。不传参数时仍读取 `FILE_BROWSER_ROOT` 和 `appsettings.json` 中的原有配置。
+
 访问 `http://localhost:5080`。默认仅预览常见 .NET/前端文本文件，单文件上限 2 MB；目录项按最后修改时间降序排列。符号链接不会显示，所有请求路径都会限制在配置的根目录内。
 
 ## 发布到 Ubuntu
