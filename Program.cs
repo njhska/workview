@@ -47,10 +47,17 @@ builder.Services.ConfigureHttpJsonOptions(options =>
     options.SerializerOptions.TypeInfoResolverChain.Insert(0, AppJsonContext.Default));
 var app = builder.Build();
 
-var root = Path.GetFullPath(commandLineRoot
+var root = Path.TrimEndingDirectorySeparator(Path.GetFullPath(commandLineRoot
     ?? Environment.GetEnvironmentVariable("FILE_BROWSER_ROOT")
     ?? builder.Configuration["FileBrowser:Root"]
-    ?? Directory.GetCurrentDirectory());
+    ?? Directory.GetCurrentDirectory()));
+
+var rootPrefix = Path.EndsInDirectorySeparator(root)
+    ? root
+    : root + Path.DirectorySeparatorChar;
+var pathComparison = OperatingSystem.IsWindows()
+    ? StringComparison.OrdinalIgnoreCase
+    : StringComparison.Ordinal;
 
 if (!Directory.Exists(root))
     throw new DirectoryNotFoundException($"浏览目录不存在: {root}");
@@ -130,10 +137,17 @@ app.Run();
 
 string? Resolve(string? relativePath)
 {
-    relativePath = (relativePath ?? "").Replace('/', Path.DirectorySeparatorChar);
-    var candidate = Path.GetFullPath(Path.Combine(root, relativePath));
-    return candidate == root || candidate.StartsWith(root + Path.DirectorySeparatorChar, StringComparison.Ordinal)
-        ? candidate : null;
+    try
+    {
+        relativePath = (relativePath ?? "").Replace('/', Path.DirectorySeparatorChar);
+        var candidate = Path.GetFullPath(Path.Combine(root, relativePath));
+        return candidate.Equals(root, pathComparison) || candidate.StartsWith(rootPrefix, pathComparison)
+            ? candidate : null;
+    }
+    catch (Exception exception) when (exception is ArgumentException or NotSupportedException or PathTooLongException)
+    {
+        return null;
+    }
 }
 
 string NormalizeRelative(string fullPath) => Path.GetRelativePath(root, fullPath)

@@ -7,6 +7,7 @@ let currentPath = '';
 const formatSize = n => n == null ? '—' : n < 1024 ? `${n} B` : n < 1048576 ? `${(n/1024).toFixed(1)} KB` : `${(n/1048576).toFixed(1)} MB`;
 const formatDate = value => new Intl.DateTimeFormat('zh-CN',{year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'}).format(new Date(value));
 const join = (base,name) => base ? `${base}/${name}` : name;
+const parent = path => path.split('/').slice(0,-1).join('/');
 const extension = name => (name.split('.').pop() || 'TXT').slice(0,4).toUpperCase();
 
 async function load(path='') {
@@ -18,7 +19,20 @@ async function load(path='') {
     currentPath = data.path;
     renderCrumbs();
     list.replaceChildren();
-    if (!data.items.length) list.innerHTML = '<div class="message">这个目录是空的。</div>';
+    if (currentPath) {
+      const up = document.createElement('button');
+      up.className = 'file-row directory parent-directory';
+      up.innerHTML = '<span class="name"><span class="icon">UP</span><span class="filename">.. 返回上级目录</span></span><span class="size">—</span><span class="date">—</span>';
+      up.title = '返回上级目录';
+      up.addEventListener('click', () => load(parent(currentPath)));
+      list.append(up);
+    }
+    if (!data.items.length) {
+      const empty = document.createElement('div');
+      empty.className = 'message';
+      empty.textContent = '这个目录是空的。';
+      list.append(empty);
+    }
     for (const item of data.items) {
       const row = document.createElement('button');
       row.className = `file-row ${item.isDirectory ? 'directory' : ''}`;
