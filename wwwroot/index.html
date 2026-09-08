@@ -7,6 +7,14 @@
   <title>Code Shelf · 文件浏览器</title>
   <meta name="description" content="浏览并预览服务器上的代码文件">
   <link rel="stylesheet" href="/app.css">
+  <style>
+    .dialog-actions{display:flex;align-items:center;gap:10px;flex:none}
+    .dialog-head .dialog-actions button{background:none;border:0;color:var(--muted);cursor:pointer}
+    .dialog-head #copy-preview{padding:8px 12px;border:1px solid #394552;font:12px/1 ui-monospace,monospace}
+    .dialog-head #copy-preview:hover,.dialog-head #copy-preview:focus-visible{color:var(--text);border-color:#667585;outline:none}
+    .dialog-head #copy-preview.copied{color:var(--accent);border-color:#456126}
+    .dialog-head #close-preview{font:28px/1 system-ui}
+  </style>
 </head>
 <body>
   <header>
@@ -26,7 +34,7 @@
     </section>
   </main>
   <dialog id="preview-dialog">
-    <div class="dialog-head"><div><span class="file-type" id="preview-type">TXT</span><strong id="preview-name"></strong><small id="preview-path"></small></div><button id="close-preview" aria-label="关闭预览">×</button></div>
+    <div class="dialog-head"><div><span class="file-type" id="preview-type">TXT</span><strong id="preview-name"></strong><small id="preview-path"></small></div><div class="dialog-actions"><button id="copy-preview" type="button" aria-label="复制文件内容">复制</button><button id="close-preview" type="button" aria-label="关闭预览">×</button></div></div>
     <div class="code-wrap"><pre id="line-numbers"></pre><pre><code id="preview-content"></code></pre></div>
   </dialog>
   <script src="/app.js" defer></script>
