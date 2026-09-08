@@ -1,7 +1,7 @@
 const list = document.querySelector('#file-list');
 const crumbs = document.querySelector('#breadcrumbs');
 const dialog = document.querySelector('#preview-dialog');
-const copyButton = document.querySelector('#copy-preview');
+const selectButton = document.querySelector('#select-preview');
 const enc = encodeURIComponent;
 let currentPath = '';
 
@@ -65,36 +65,22 @@ async function preview(path) {
     document.querySelector('#preview-type').textContent=extension(data.name);
     document.querySelector('#preview-content').textContent=data.content;
     document.querySelector('#line-numbers').textContent=Array.from({length:data.content.split('\n').length},(_,i)=>i+1).join('\n');
-    copyButton.textContent='复制';
-    copyButton.classList.remove('copied');
+    selectButton.textContent='全选';
+    selectButton.classList.remove('selected');
     dialog.showModal();
   } catch(error) { alert(error.message || '预览失败'); }
 }
-async function copyPreview() {
-  const content=document.querySelector('#preview-content').textContent;
-  try {
-    if (navigator.clipboard?.writeText) {
-      await navigator.clipboard.writeText(content);
-    } else {
-      const textarea=document.createElement('textarea');
-      textarea.value=content;
-      textarea.style.cssText='position:fixed;opacity:0;pointer-events:none';
-      document.body.append(textarea);
-      textarea.select();
-      const copied=document.execCommand('copy');
-      textarea.remove();
-      if (!copied) throw new Error('copy failed');
-    }
-    copyButton.textContent='已复制';
-    copyButton.classList.add('copied');
-    setTimeout(()=>{copyButton.textContent='复制';copyButton.classList.remove('copied')},1600);
-  } catch(error) {
-    copyButton.textContent='复制失败';
-    setTimeout(()=>{copyButton.textContent='复制'},1600);
-  }
+function selectPreview() {
+  const range=document.createRange();
+  range.selectNodeContents(document.querySelector('#preview-content'));
+  const selection=window.getSelection();
+  selection.removeAllRanges();
+  selection.addRange(range);
+  selectButton.textContent='已全选';
+  selectButton.classList.add('selected');
 }
 function escapeHtml(value){const d=document.createElement('div');d.textContent=value;return d.innerHTML}
-copyButton.onclick=copyPreview;
+selectButton.onclick=selectPreview;
 document.querySelector('#close-preview').onclick=()=>dialog.close();
 dialog.addEventListener('click',e=>{if(e.target===dialog)dialog.close()});
 load();
